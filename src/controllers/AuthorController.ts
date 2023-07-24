@@ -6,12 +6,12 @@ import Author from "../models/Author";
 
 export const createAuthor = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   const { name } = req.body;
-  const author = new Author({ _id: new mongoose.Types.ObjectId(),
-    name,
-  });
+  // const author = new Author({ _id: new mongoose.Types.ObjectId(),
+  //   name,
+  // });
 
   try {
-    const createdAuthor = await author.save();
+    const createdAuthor = await  new Author(req.body);
     res.status(201).json({ author: createdAuthor });
   } catch (error) {
     res.status(500).json({ error });

@@ -1,75 +1,44 @@
-// controllers/authorController.ts
 
 import { NextFunction, Request, Response } from "express";
-import mongoose from "mongoose";
-import Author from "../models/Author";
+import bcrypt from "bcrypt";
+import User from "../models/User";
 
-export const createAuthor = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-  const { name } = req.body;
-  const author = new Author({
-    _id: new mongoose.Types.ObjectId(),
-    name,
-  });
+export const createUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  const { firstName, lastName, email, password } = req.body;
 
   try {
-    const createdAuthor = await author.save();
+    const userExist = await User.findOne(email);
+    if (userExist) return res.status(400).json({ error: "Users already exist"});
+
+    User.
+    const hashPassword = await bcrypt.hash(password, )
+
+    const createdAuthor = await  new User(req.body);
     res.status(201).json({ author: createdAuthor });
   } catch (error) {
     res.status(500).json({ error });
   }
 };
 
-export const readAuthor = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-  const authorId = req.params.authorId;
+export const login = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  const { email, password } = req.body;
 
   try {
-    const author = await Author.findById(authorId);
-    if (author) {
-      res.status(200).json({ author });
-    } else {
-      res.status(404).json({ message: "Not found" });
-    }
+    const userExist = await User.findOne(email);
+    if (!userExist) return res.status(400).json({ error: "Users doesn't exist"});
+
+    const createdAuthor = await  new User(req.body);
+    res.status(201).json({ author: createdAuthor });
   } catch (error) {
     res.status(500).json({ error });
   }
 };
 
-export const readAllAuthor = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const getAllUsers = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const authors = await Author.find();
-    res.status(200).json({ authors });
-  } catch (error) {
-    res.status(500).json({ error });
-  }
-};
+    const users = await User.find();
+    return res.status(420).json(users);
 
-export const updateAuthor = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-  const authorId = req.params.authorId;
-
-  try {
-    const author = await Author.findById(authorId);
-    if (author) {
-      author.set(req.body);
-      const updatedAuthor = await author.save();
-      res.status(201).json({ author: updatedAuthor });
-    } else {
-      res.status(404).json({ message: "Not found" });
-    }
-  } catch (error) {
-    res.status(500).json({ error });
-  }
-};
-
-export const deleteAuthor = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-  const authorId = req.params.authorId;
-
-  try {
-    const deletedAuthor = await Author.findByIdAndDelete(authorId);
-    if (deletedAuthor) {
-      res.status(201).json({ message: "Deleted" });
-    } else {
-      res.status(404).json({ message: "Not found" });
-    }
   } catch (error) {
     res.status(500).json({ error });
   }
